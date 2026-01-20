@@ -1,4 +1,5 @@
-# betterdiscord
+# BetterDiscord
 
-Plugin: discordquests.plugin.js
-Description: Complete missions with just a shortcut. Default: Ctrl+Q.
+### Plugin: discordquests.plugin.js
+
+- Description: Complete missions with just a shortcut. Default: Ctrl+Q.
