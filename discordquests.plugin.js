@@ -1,8 +1,9 @@
 /**
  * @name DiscordQuests
- * @author ll-Exanime-ll
- * @description Runs a custom snippet with a customizable keyboard shortcut.
- * @version 1.0.0
+ * @author exanime.
+ * @authorLink https://github.com/ll-Exanime-ll
+ * @description Complete missions with just a shortcut. Default: Ctrl+Q.
+ * @version 1.0.1
  * @updateUrl https://raw.githubusercontent.com/ll-Exanime-ll/betterdiscord/main/discordquests.plugin.js
  * @source https://github.com/ll-Exanime-ll/betterdiscord
  * @website https://exanime.site/
@@ -222,3 +223,4 @@ module.exports = class DiscordQuests {
     });
   }
 };
+
