@@ -3,8 +3,9 @@
  * @author exanime.
  * @authorLink https://github.com/ll-Exanime-ll
  * @description Complete missions with just a shortcut. Default: Ctrl+Q.
- * @version 1.0.1
+ * @version 1.0.2
  * @updateUrl https://raw.githubusercontent.com/ll-Exanime-ll/betterdiscord/main/discordquests.plugin.js
+ * @donate https://paypal.me/ExanimeTV
  * @source https://github.com/ll-Exanime-ll/betterdiscord
  * @website https://exanime.site/
  */
@@ -223,4 +224,5 @@ module.exports = class DiscordQuests {
     });
   }
 };
+
 
