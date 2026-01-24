@@ -2,7 +2,7 @@
  * @name DiscordQuests
  * @author Exánime
  * @authorLink https://github.com/Exanime02
- * @description Complete missions with just a shortcut. Default: Ctrl+Q. Compatible with Discord Stable and Canary.
+ * @description Complete missions with just a shortcut. Default: Ctrl+Q.
  * @version 3.5.1
  * @updateUrl https://raw.githubusercontent.com/Exanime02/BetterDiscord/main/DiscordQuests.plugin.js
  * @donate https://paypal.me/ExanimeTV
@@ -543,6 +543,7 @@ module.exports = class DiscordQuests {
     return container;
   }
 };
+
 
 
 
