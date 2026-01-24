@@ -436,7 +436,7 @@ module.exports = class DiscordQuests {
 
     const noteKey = document.createElement("div");
     noteKey.className = "dq-note";
-    noteKey.textContent = "Tecla para el atajo (ej: q, x, F1).";
+    noteKey.textContent = "Key for shortcut (in: q, x, F1).";
     container.appendChild(noteKey);
 
     const divider1 = document.createElement("div");
@@ -483,7 +483,7 @@ module.exports = class DiscordQuests {
 
     const noteMod = document.createElement("div");
     noteMod.className = "dq-note";
-    noteMod.textContent = "Combinación de teclas especiales.";
+    noteMod.textContent = "Special key combination.";
     container.appendChild(noteMod);
 
     const divider2 = document.createElement("div");
@@ -506,7 +506,7 @@ module.exports = class DiscordQuests {
 
     const updateNote = document.createElement("div");
     updateNote.className = "dq-note";
-    updateNote.textContent = "Busca y descarga la última versión disponible.";
+    updateNote.textContent = "Find and download the latest available version.";
     actionsLeft.appendChild(updateNote);
 
     const actionsRight = document.createElement("div");
@@ -535,4 +535,5 @@ module.exports = class DiscordQuests {
     return container;
   }
 };
+
 
