@@ -3,7 +3,7 @@
  * @author exanime.
  * @authorLink https://github.com/Exanime02
  * @description Complete missions with just a shortcut. Default: Ctrl+Q. Compatible with Discord Stable and Canary.
- * @version 3.0.0
+ * @version 3.5.0
  * @updateUrl https://raw.githubusercontent.com/Exanime02/BetterDiscord/main/DiscordQuests.plugin.js
  * @donate https://paypal.me/ExanimeTV
  * @source https://github.com/Exanime02/BetterDiscord
@@ -22,7 +22,7 @@ module.exports = class DiscordQuests {
 
     this.PLUGIN_NAME = "DiscordQuests";
     this.UPDATE_URL = "https://raw.githubusercontent.com/Exanime02/BetterDiscord/main/DiscordQuests.plugin.js";
-    this.CURRENT_VERSION = "3.0.0";
+    this.CURRENT_VERSION = "3.5.0";
   }
 
   start() {
@@ -36,51 +36,58 @@ module.exports = class DiscordQuests {
   }
 
   handleKeyDown(event) {
-    let ctrlMatch, shiftMatch, altMatch;
-    
-    switch(this.settings.modifier) {
+    const modifier = (this.settings && this.settings.modifier) || this.defaultSettings.modifier;
+    const shortcutKey = (this.settings && this.settings.shortcutKey) || this.defaultSettings.shortcutKey;
+
+    let ctrlMatch = false, shiftMatch = false, altMatch = false;
+
+    const hasCtrl = event.ctrlKey || event.metaKey;
+    const hasShift = event.shiftKey;
+    const hasAlt = event.altKey;
+
+    switch (modifier) {
       case "ctrl":
-        ctrlMatch = event.ctrlKey || event.metaKey;
-        shiftMatch = !event.shiftKey;
-        altMatch = !event.altKey;
+        ctrlMatch = hasCtrl;
+        shiftMatch = !hasShift;
+        altMatch = !hasAlt;
         break;
       case "shift":
-        ctrlMatch = !event.ctrlKey && !event.metaKey;
-        shiftMatch = event.shiftKey;
-        altMatch = !event.altKey;
+        ctrlMatch = !hasCtrl;
+        shiftMatch = hasShift;
+        altMatch = !hasAlt;
         break;
       case "alt":
-        ctrlMatch = !event.ctrlKey && !event.metaKey;
-        shiftMatch = !event.shiftKey;
-        altMatch = event.altKey;
+        ctrlMatch = !hasCtrl;
+        shiftMatch = !hasShift;
+        altMatch = hasAlt;
         break;
       case "ctrl+shift":
-        ctrlMatch = event.ctrlKey || event.metaKey;
-        shiftMatch = event.shiftKey;
-        altMatch = !event.altKey;
+        ctrlMatch = hasCtrl;
+        shiftMatch = hasShift;
+        altMatch = !hasAlt;
         break;
       case "ctrl+alt":
-        ctrlMatch = event.ctrlKey || event.metaKey;
-        shiftMatch = !event.shiftKey;
-        altMatch = event.altKey;
+        ctrlMatch = hasCtrl;
+        shiftMatch = !hasShift;
+        altMatch = hasAlt;
         break;
       case "shift+alt":
-        ctrlMatch = !event.ctrlKey && !event.metaKey;
-        shiftMatch = event.shiftKey;
-        altMatch = event.altKey;
+        ctrlMatch = !hasCtrl;
+        shiftMatch = hasShift;
+        altMatch = hasAlt;
         break;
       case "ctrl+shift+alt":
-        ctrlMatch = event.ctrlKey || event.metaKey;
-        shiftMatch = event.shiftKey;
-        altMatch = event.altKey;
+        ctrlMatch = hasCtrl;
+        shiftMatch = hasShift;
+        altMatch = hasAlt;
         break;
       default:
-        ctrlMatch = event.ctrlKey || event.metaKey;
-        shiftMatch = !event.shiftKey;
-        altMatch = !event.altKey;
+        ctrlMatch = hasCtrl;
+        shiftMatch = !hasShift;
+        altMatch = !hasAlt;
     }
-    
-    const keyMatch = event.key.toLowerCase() === this.settings.shortcutKey.toLowerCase();
+
+    const keyMatch = String(event.key || "").toLowerCase() === String(shortcutKey || "").toLowerCase();
 
     if (ctrlMatch && shiftMatch && altMatch && keyMatch) {
       event.preventDefault();
@@ -90,7 +97,7 @@ module.exports = class DiscordQuests {
 
   async checkForUpdates(showUpToDateToast = true) {
     const toast = (message, type = "info") => {
-      if (BdApi?.UI?.showToast) BdApi.UI.showToast(message, { type });
+      try { if (BdApi?.UI?.showToast) BdApi.UI.showToast(message, { type }); } catch (e) {}
       console.log(`[DiscordQuests] ${message}`);
     };
 
@@ -100,7 +107,6 @@ module.exports = class DiscordQuests {
     };
 
     const compareVersions = (a, b) => {
-
       const pa = String(a).split(".").map(n => parseInt(n, 10) || 0);
       const pb = String(b).split(".").map(n => parseInt(n, 10) || 0);
       const len = Math.max(pa.length, pb.length);
@@ -114,8 +120,12 @@ module.exports = class DiscordQuests {
     };
 
     try {
-      toast("Checking for updates...", "info");
+      if (!this.UPDATE_URL) {
+        toast("No update URL configured.", "info");
+        return;
+      }
 
+      toast("Checking for updates...", "info");
       const res = await fetch(this.UPDATE_URL, { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status} - ${res.statusText}`);
 
@@ -136,7 +146,6 @@ module.exports = class DiscordQuests {
 
       toast(`New version found: v${remoteVersion}. Downloading...`, "info");
 
-
       const fs = require("fs");
       const path = require("path");
 
@@ -148,15 +157,13 @@ module.exports = class DiscordQuests {
       toast(`Updated to v${remoteVersion}. Please reload Discord (Ctrl+R) or restart.`, "success");
     } catch (err) {
       console.error("[DiscordQuests] Update check error:", err);
-      if (BdApi?.UI?.showToast) BdApi.UI.showToast(`Update check failed: ${String(err.message || err)}`, { type: "error" });
+      try { if (BdApi?.UI?.showToast) BdApi.UI.showToast(`Update check failed: ${String(err.message || err)}`, { type: "error" }); } catch (e) {}
     }
   }
 
   runSnippet() {
     try {
       console.log("[DiscordQuests] Shortcut triggered - Executing...");
-
-
 
       delete window.$;
 
@@ -371,53 +378,150 @@ module.exports = class DiscordQuests {
   }
 
   getSettingsPanel() {
-    const saveSettings = () => {
-      BdApi.Data.save("DiscordQuests", "settings", this.settings);
-    };
+    const saveSettings = () => BdApi.Data.save("DiscordQuests", "settings", this.settings);
 
-    return BdApi.UI.buildSettingsPanel({
-      settings: [
-        {
-          type: "text",
-          id: "shortcutKey",
-          name: "Shortcut Key",
-          value: this.settings.shortcutKey,
-          onChange: (v) => { 
-            this.settings.shortcutKey = v; 
-            saveSettings();
-          }
-        },
-        {
-          type: "dropdown",
-          id: "modifier",
-          name: "Modifier Keys",
-          value: this.settings.modifier,
-          options: [
-            { label: "Ctrl/Cmd", value: "ctrl" },
-            { label: "Shift", value: "shift" },
-            { label: "Alt", value: "alt" },
-            { label: "Ctrl+Shift", value: "ctrl+shift" },
-            { label: "Ctrl+Alt", value: "ctrl+alt" },
-            { label: "Shift+Alt", value: "shift+alt" },
-            { label: "Ctrl+Shift+Alt", value: "ctrl+shift+alt" }
-          ],
-          onChange: (v) => { 
-            this.settings.modifier = v; 
-            saveSettings();
-          }
-        },
-        {
-          type: "button",
-          id: "checkUpdate",
-          name: "Update Plugin",
-          onClick: () => {
-            this.checkForUpdates(true);
-          },
-          text: "check",
-          className: "button-38a6f0 lookFilled-1GseHa colorBrand-2M3O3N sizeSmall-2_uNNS"
-        }
-      ]
+    const container = document.createElement("div");
+    container.style.padding = "20px 16px";
+    container.style.color = "var(--text-normal, #FFFFFF)";
+    container.style.fontFamily = "Whitney, Helvetica, Arial, sans-serif";
+
+    const style = document.createElement("style");
+    style.textContent = `
+      .dq-row { display:flex; align-items:center; justify-content:space-between; gap:16px; margin: 8px 0; }
+      .dq-label { width: 220px; font-weight:600; font-size:14px; color:var(--text-normal,#FFFFFF); }
+      .dq-input, .dq-select { flex:1; max-width: 420px; min-width:120px; }
+      .dq-input input { width:100%; padding:10px 12px; border-radius:8px; background:var(--background-modifier-hover,#2f3136); border:1px solid rgba(0,0,0,0.2); color:var(--text-normal,#FFFFFF); }
+      .dq-select { position:relative; }
+      .dq-select select { width:100%; padding:10px 12px; padding-right:36px; border-radius:8px; background:var(--background-modifier-hover,#2f3136); border:1px solid rgba(0,0,0,0.2); color:var(--text-normal,#FFFFFF); appearance: none; -webkit-appearance: none; -moz-appearance: none; }
+      .dq-select::after { content: "▾"; position: absolute; right:12px; top:50%; transform: translateY(-50%); pointer-events: none; color: var(--text-normal,#FFFFFF); font-size:12px; opacity:0.95; }
+      .dq-divider { height:1px; background: rgba(255,255,255,0.06); margin:14px 0; border-radius:2px; }
+      .dq-actions { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:8px; }
+      .dq-update-btn { padding:8px 14px; border-radius:8px; background: #3f8cff; color:white; border:none; cursor:pointer; }
+      .dq-update-btn:hover { background:#3577e6; }
+      .dq-note { color: rgba(181,186,193,1); font-size:12px; margin-top:6px; }
+    `;
+    container.appendChild(style);
+
+    const rowKey = document.createElement("div");
+    rowKey.className = "dq-row";
+    const labelKey = document.createElement("div");
+    labelKey.className = "dq-label";
+    labelKey.textContent = "Shortcut Key";
+    const inputWrap = document.createElement("div");
+    inputWrap.className = "dq-input";
+
+    const inputEl = document.createElement("input");
+    inputEl.type = "text";
+    inputEl.value = this.settings.shortcutKey || "";
+    inputEl.placeholder = "q";
+    inputEl.addEventListener("input", (e) => {
+      this.settings.shortcutKey = e.target.value;
+      saveSettings();
     });
+
+    inputWrap.appendChild(inputEl);
+    rowKey.appendChild(labelKey);
+    rowKey.appendChild(inputWrap);
+    container.appendChild(rowKey);
+
+    const noteKey = document.createElement("div");
+    noteKey.className = "dq-note";
+    noteKey.textContent = "Tecla para el atajo (ej: q, x, F1).";
+    container.appendChild(noteKey);
+
+    const divider1 = document.createElement("div");
+    divider1.className = "dq-divider";
+    container.appendChild(divider1);
+
+    const rowMod = document.createElement("div");
+    rowMod.className = "dq-row";
+    const labelMod = document.createElement("div");
+    labelMod.className = "dq-label";
+    labelMod.textContent = "Modifier Keys";
+    const selectWrap = document.createElement("div");
+    selectWrap.className = "dq-select";
+
+    const selectEl = document.createElement("select");
+    const options = [
+      { label: "Ctrl/Cmd", value: "ctrl" },
+      { label: "Shift", value: "shift" },
+      { label: "Alt", value: "alt" },
+      { label: "Ctrl+Shift", value: "ctrl+shift" },
+      { label: "Ctrl+Alt", value: "ctrl+alt" },
+      { label: "Shift+Alt", value: "shift+alt" },
+      { label: "Ctrl+Shift+Alt", value: "ctrl+shift+alt" }
+    ];
+
+    options.forEach(opt => {
+      const o = document.createElement("option");
+      o.value = opt.value;
+      o.textContent = opt.label;
+      if (this.settings.modifier === opt.value) o.selected = true;
+      selectEl.appendChild(o);
+    });
+
+    selectEl.addEventListener("change", (e) => {
+      this.settings.modifier = e.target.value;
+      saveSettings();
+      try { inputEl.focus(); } catch (err) {}
+    });
+
+    selectWrap.appendChild(selectEl);
+    rowMod.appendChild(labelMod);
+    rowMod.appendChild(selectWrap);
+    container.appendChild(rowMod);
+
+    const noteMod = document.createElement("div");
+    noteMod.className = "dq-note";
+    noteMod.textContent = "Combinación de teclas especiales.";
+    container.appendChild(noteMod);
+
+    const divider2 = document.createElement("div");
+    divider2.className = "dq-divider";
+    container.appendChild(divider2);
+
+    const actionsRow = document.createElement("div");
+    actionsRow.className = "dq-actions";
+
+    const actionsLeft = document.createElement("div");
+    actionsLeft.style.flex = "1";
+    actionsLeft.style.display = "flex";
+    actionsLeft.style.flexDirection = "column";
+
+    const updateLabel = document.createElement("div");
+    updateLabel.textContent = "Update Plugin";
+    updateLabel.style.fontWeight = "600";
+    updateLabel.style.marginBottom = "6px";
+    actionsLeft.appendChild(updateLabel);
+
+    const updateNote = document.createElement("div");
+    updateNote.className = "dq-note";
+    updateNote.textContent = "Busca y descarga la última versión disponible.";
+    actionsLeft.appendChild(updateNote);
+
+    const actionsRight = document.createElement("div");
+    actionsRight.style.display = "flex";
+    actionsRight.style.alignItems = "center";
+    actionsRight.style.justifyContent = "flex-end";
+    actionsRight.style.minWidth = "110px";
+
+    const updateBtn = document.createElement("button");
+    updateBtn.className = "dq-update-btn";
+    updateBtn.textContent = "Check";
+    updateBtn.addEventListener("click", () => {
+      this.checkForUpdates(true);
+    });
+
+    actionsRight.appendChild(updateBtn);
+
+    actionsRow.appendChild(actionsLeft);
+    actionsRow.appendChild(actionsRight);
+    container.appendChild(actionsRow);
+
+    const divider3 = document.createElement("div");
+    divider3.className = "dq-divider";
+    container.appendChild(divider3);
+
+    return container;
   }
 };
-
