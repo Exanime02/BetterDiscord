@@ -22,7 +22,7 @@ module.exports = class DiscordQuests {
 
     this.PLUGIN_NAME = "DiscordQuests";
     this.UPDATE_URL = "https://raw.githubusercontent.com/Exanime02/BetterDiscord/main/DiscordQuests.plugin.js";
-    this.CURRENT_VERSION = "2.2.3";
+    this.CURRENT_VERSION = "3.0.0";
   }
 
   start() {
@@ -420,3 +420,4 @@ module.exports = class DiscordQuests {
     });
   }
 };
+
