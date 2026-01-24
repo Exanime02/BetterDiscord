@@ -22,7 +22,17 @@ module.exports = class DiscordQuests {
 
     this.PLUGIN_NAME = "DiscordQuests";
     this.UPDATE_URL = "https://raw.githubusercontent.com/Exanime02/BetterDiscord/main/DiscordQuests.plugin.js";
-    this.CURRENT_VERSION = "3.5.0";
+
+    const fs = require("fs");
+    const path = require("path");
+    try {
+      const pluginPath = path.join(BdApi.Plugins.folder, "DiscordQuests.plugin.js");
+      const content = fs.readFileSync(pluginPath, "utf8");
+      const versionMatch = content.match(/@version\s+([0-9.]+)/);
+      this.CURRENT_VERSION = versionMatch ? versionMatch[1] : "1.0.0";
+    } catch (e) {
+      this.CURRENT_VERSION = "1.0.0";
+    }
   }
 
   start() {
@@ -525,3 +535,4 @@ module.exports = class DiscordQuests {
     return container;
   }
 };
+
